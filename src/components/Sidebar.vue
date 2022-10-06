@@ -22,6 +22,11 @@
 import avatar from "@/components/Avatar";
 export default {
   components: { avatar },
+  methods: {
+    onLogout() {
+      console.log("fuck,sidebar-onLogout");
+    },
+  },
 };
 </script>
 

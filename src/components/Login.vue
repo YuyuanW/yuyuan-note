@@ -153,7 +153,6 @@ export default {
   .form {
     width: 270px;
     border-left: 1px solid #ccc;
-
     h3 {
       padding: 10px 20px;
       font-weight: normal;
@@ -165,7 +164,6 @@ export default {
         border-bottom: 1px solid #eee;
       }
     }
-
     .button {
       background-color: #2bb964;
       height: 36px;
