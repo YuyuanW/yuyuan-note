@@ -20,11 +20,15 @@
 
 <script>
 import avatar from "@/components/Avatar";
+import Auth from "@/apis/auth";
 export default {
   components: { avatar },
   methods: {
     onLogout() {
-      console.log("fuck,sidebar-onLogout");
+      console.log("onLogout");
+      Auth.logout().then((data) => {
+        console.log(data);
+      });
     },
   },
 };
