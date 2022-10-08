@@ -12,7 +12,7 @@
         ><i class="iconfont icon-trash"></i
       ></router-link>
     </div>
-    <div class="logout" @click="onLogout">
+    <div class="logout" @click="logout">
       <i class="iconfont icon-logout"></i>
     </div>
   </div>
@@ -24,10 +24,9 @@ import Auth from "@/apis/auth";
 export default {
   components: { avatar },
   methods: {
-    onLogout() {
-      console.log("onLogout");
+    logout() {
       Auth.logout().then((data) => {
-        console.log(data);
+        this.$router.push({ path: "login" });
       });
     },
   },
