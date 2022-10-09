@@ -59,7 +59,7 @@
 <script>
 // import request from "@/helpers/request.js";
 import Auth from "@/apis/auth";
-
+import Bus from "@/helpers/bus";
 Auth.getInfo().then((data) => {
   console.log(data);
 });
@@ -115,6 +115,7 @@ export default {
         .then((data) => {
           this.register.isError = false;
           this.register.notice = "";
+          Bus.$emit("username", this.register.username);
           this.$router.push({ path: "notebooks" });
         })
         .catch((data) => {
@@ -144,6 +145,7 @@ export default {
         .then((data) => {
           this.login.isError = false;
           this.login.notice = "";
+          Bus.$emit("username", this.login.username);
           this.$router.push({ path: "notebooks" });
         })
         .catch((data) => {
