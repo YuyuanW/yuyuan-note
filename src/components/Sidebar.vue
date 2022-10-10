@@ -6,7 +6,7 @@
         ><i class="iconfont icon-note"></i
       ></router-link>
       <router-link to="/notebooks" title="笔记本"
-        ><i class="iconfont icon-notebook"></i
+        ><i class="iconfont icon-book"></i
       ></router-link>
       <router-link to="/trash/2" title="回收站"
         ><i class="iconfont icon-trash"></i

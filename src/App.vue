@@ -16,7 +16,7 @@ export default {
 </script>
 
 <style>
-@import "//at.alicdn.com/t/font_496303_kqrjhri8l25d0a4i.css";
+@import "//at.alicdn.com/t/c/font_3696209_1gtyaok4lvy.css";
 
 * {
   box-sizing: border-box;
