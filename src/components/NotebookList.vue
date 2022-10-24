@@ -1,9 +1,9 @@
 <template>
   <div class="detail" id="notebook-list">
     <header>
-      <a href="#" class="btn" @click="onCreate"
-        ><i class="iconfont icon-plus"></i>新建笔记本</a
-      >
+      <div class="btn" @click="onCreate">
+        <i class="iconfont icon-plus"></i>新建笔记本
+      </div>
     </header>
     <main>
       <div class="layout">
@@ -58,39 +58,79 @@ export default {
   },
   methods: {
     onCreate() {
-      let title = window.prompt("请输入新建笔记本的标题：");
-      if (title.trim() === "") {
-        window.alert("笔记本名不能为空，请重新创建");
-        return;
-      }
-      Notebooks.addNotebook({ title }).then((res) => {
-        res.data.friendlyCreatedAt = friendlyDate(res.data.createdAt);
-        this.notebooks.unshift(res.data);
-        window.alert(res.msg);
-      });
+      this.$prompt("请输入新建笔记本名字：", "创建笔记本", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputPattern: /^.{1,30}$/,
+        inputErrorMessage: "标题不能为空，且不能超过30个字符",
+      })
+        .then(({ value }) => {
+          return Notebooks.addNotebook({ title: value });
+        })
+        .then((res) => {
+          res.data.friendlyCreatedAt = friendlyDate(res.data.createdAt);
+          this.notebooks.unshift(res.data);
+          this.$message({
+            type: "success",
+            message: res.msg,
+          });
+        })
+        .catch((res) => {
+          this.$message({
+            type: "error",
+            message: res.msg || "创建失败",
+          });
+        });
     },
     onEdit(notebook) {
-      let title = window.prompt(`将笔记本${notebook.title}更改为：`);
-      if (title.trim() === "") {
-        window.alert("笔记本名不能为空");
-        return;
-      } else if (title === notebook.title) {
-        window.alert("笔记本名请更改为不同的名字");
-        return;
-      }
-      Notebooks.updateNotebook(notebook.id, { title }).then((res) => {
-        notebook.title = title;
-        window.alert(res.msg);
-      });
+      let title = "";
+      this.$prompt("重命名笔记本：", "编辑笔记本", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        inputPattern: /^.{1,30}$/,
+        inputErrorMessage: "标题不能为空，且不能超过30个字符",
+      })
+        .then(({ value }) => {
+          title = value;
+          return Notebooks.updateNotebook(notebook.id, { title });
+        })
+        .then((res) => {
+          // res.data.friendlyCreatedAt = friendlyDate(res.data.createdAt);
+          notebook.title = title;
+          this.$message({
+            type: "success",
+            message: res.msg,
+          });
+        })
+        .catch((res) => {
+          this.$message({
+            type: "error",
+            message: res.msg || "重命名失败",
+          });
+        });
     },
     onDelete(notebook) {
-      let isConfirm = window.confirm(`确定删除${notebook.title}吗？`);
-      if (isConfirm) {
-        Notebooks.deleteNotebook(notebook.id).then((res) => {
+      this.$confirm("删除笔记本以及所以笔记内容", "删除笔记本", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          return Notebooks.deleteNotebook(notebook.id);
+        })
+        .then((res) => {
           this.notebooks.splice(this.notebooks.indexOf(notebook), 1);
-          window.alert(res.msg);
+          this.$message({
+            type: "success",
+            message: res.msg || "删除成功",
+          });
+        })
+        .catch((res) => {
+          this.$message({
+            type: "info",
+            message: res.msg || "删除取消",
+          });
         });
-      }
     },
   },
 };
@@ -114,7 +154,6 @@ header {
     padding-right: 2px;
   }
 }
-
 input {
   width: 300px;
   height: 30px;
@@ -129,10 +168,11 @@ main {
   height: calc(100vh - 46px);
   overflow: scroll;
 }
-
 .book-list {
   margin-top: 10px;
   font-size: 14px;
+}
+main .book-list span {
   color: #666;
   background-color: #fff;
   border-radius: 4px;
@@ -178,7 +218,6 @@ main a.notebook:hover {
     padding: 12px 14px;
   }
 }
-
 main .error-msg {
   font-size: 12px;
   color: red;
