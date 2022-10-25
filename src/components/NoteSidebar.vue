@@ -31,23 +31,29 @@
 </template>
 
 <script>
+import Notebooks from "@/apis/notebooks";
+import Notes from "@/apis/notes";
+
 export default {
   name: "NoteSidebar",
+  created() {
+    Notebooks.getAll().then((res) => {
+      this.notebooks = res.data;
+    });
+  },
   data() {
     return {
-      notebooks: [
-        { id: 1, title: "hello1" },
-        { id: 2, title: "hello2" },
-      ],
-      notes: [
-        { id: 11, title: "第一个笔记本", updateAtFriendly: "刚刚" },
-        { id: 12, title: "第二个笔记本", updateAtFriendly: "三分钟前" },
-      ],
+      notebooks: [],
+      notes: [],
     };
   },
   methods: {
-    handleCommand(command) {
-      this.$message("click on item " + command);
+    handleCommand(notebookId) {
+      Notes.getAll({ notebookId }).then((res) => {
+        this.notes = res.data;
+        this.$message("笔记本切换成功");
+      });
+      //   this.$message("切换至笔记本： " + command);
     },
   },
 };
