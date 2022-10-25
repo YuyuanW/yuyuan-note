@@ -2,7 +2,7 @@
   <div id="note" class="detail">
     <NoteSidebar></NoteSidebar>
     <div id="note-detail">
-      <h1>notebookId : {{ $route.query.notebookId }}</h1>
+      <!-- <h1>notebookId : {{ $route.query.notebookId }}</h1> -->
       <h1>noteId : {{ this.$route.query.noteId }}</h1>
       <h1>halo</h1>
     </div>
@@ -12,6 +12,7 @@
 <script>
 import Auth from "@/apis/auth";
 import NoteSidebar from "./NoteSidebar.vue";
+import Notes from "@/apis/notes";
 export default {
   name: "NoteDetail",
   components: { NoteSidebar },
@@ -27,6 +28,7 @@ export default {
         this.$router.push({ path: "/login" });
       }
     });
+    // Notes.getAll();
   },
 };
 </script>

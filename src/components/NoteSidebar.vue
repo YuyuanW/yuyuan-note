@@ -1,15 +1,15 @@
 <template>
   <div class="note-sidebar">
-    <span class="btn add-note">添加笔记</span>
+    <span class="btn add-note" @click="addNote(curBook)">添加笔记</span>
     <el-dropdown @command="handleCommand" class="notebook-title el-dropdown">
       <span class="el-dropdown-link">
-        1<i class="el-icon-arrow-down el-icon--right"></i>
+        {{ curBook.title }}<i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
         <el-dropdown-item
           v-for="notebook in notebooks"
           :key="notebook.id"
-          :command="notebook.id"
+          :command="notebook"
           >{{ notebook.title }}</el-dropdown-item
         >
         <el-dropdown-item command="trash">回收站</el-dropdown-item>
@@ -21,8 +21,8 @@
     </div>
     <ul class="notes">
       <li v-for="note in notes" :key="note.id">
-        <router-link :to="`/note?noteId=${note.id}`">
-          <span class="date">{{ note.updateAtFriendly }}</span>
+        <router-link :to="`/note?noteId=${note.id}&notebookId=${curBook.id}`">
+          <span class="date">{{ note.updatedAtFriendly }}</span>
           <span class="title">{{ note.title }}</span>
         </router-link>
       </li>
@@ -33,27 +33,44 @@
 <script>
 import Notebooks from "@/apis/notebooks";
 import Notes from "@/apis/notes";
-
 export default {
   name: "NoteSidebar",
   created() {
     Notebooks.getAll().then((res) => {
       this.notebooks = res.data;
+      this.curBook =
+        this.notebooks.find(
+          (notebook) => notebook.id === this.$route.query.notebookId
+        ) ||
+        this.notebooks[0] ||
+        {};
+      //   return Notes.getAll({ notebookId: this.curBook.id })
     });
   },
   data() {
     return {
       notebooks: [],
       notes: [],
+      curBook: {},
     };
   },
   methods: {
-    handleCommand(notebookId) {
-      Notes.getAll({ notebookId }).then((res) => {
+    handleCommand(notebook) {
+      Notes.getAll({ notebookId: notebook.id }).then((res) => {
         this.notes = res.data;
+        this.curBook = notebook;
         this.$message("笔记本切换成功");
       });
       //   this.$message("切换至笔记本： " + command);
+    },
+    addNote(notebook) {
+      Notes.addNote({ notebookId: notebook.id }).then((res) => {
+        this.notes.unshift(res.data);
+        this.$message({
+          type: "success",
+          message: res.msg,
+        });
+      });
     },
   },
 };
@@ -151,5 +168,14 @@ li a {
 }
 .router-link-exact-active {
   border: 2px solid lightblue;
+}
+.el-dropdown-menu {
+  max-height: 80vh;
+  max-width: 250px;
+
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 </style>

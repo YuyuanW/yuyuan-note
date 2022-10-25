@@ -35,7 +35,7 @@ export default {
     return request(URL.DELETE.replace(':noteId', noteId), 'DELETE')
   },
 
-  addNote({ notebookId },  { title = '', content = ''} = { title: '', content: ''}) {
+  addNote({ notebookId },  { title = '', content = ''} = { title: '默认标题', content: '默认内容'}) {
     return new Promise((resolve, reject) => {
       request(URL.ADD.replace(':notebookId', notebookId), 'POST', { title, content })
         .then(res => {

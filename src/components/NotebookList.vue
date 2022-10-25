@@ -12,7 +12,7 @@
         <div class="book-list">
           <router-link
             v-for="notebook in notebooks"
-            to="/note/1"
+            :to="`/note?notebookId=${notebook.id}`"
             class="notebook"
             :key="notebook.id"
           >
@@ -38,7 +38,7 @@
 import Auth from "@/apis/auth";
 import Notebooks from "@/apis/notebooks";
 import { friendlyDate } from "@/helpers/util";
-window.Notebooks = Notebooks;
+
 export default {
   data() {
     return {
