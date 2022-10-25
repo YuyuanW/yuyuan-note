@@ -143,4 +143,7 @@ li a {
     padding: 0 10px;
   }
 }
+.router-link-exact-active {
+  border: 2px solid lightblue;
+}
 </style>
