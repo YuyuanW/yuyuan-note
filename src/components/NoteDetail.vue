@@ -6,7 +6,7 @@
         <div>
           <el-dropdown @command="handleCommand">
             <span class="el-dropdown-link">
-              {{ curBook.title ? curBook.title : "下拉"
+              {{ curBook.title ? curBook.title : "请新建笔记本"
               }}<i class="el-icon-arrow-down el-icon--right"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
@@ -29,8 +29,13 @@
         <div class="list">
           <ul>
             <li v-for="note in notes" :key="note.id">
-              <span>{{ note.updatedAtFriendly }}</span
-              ><span>{{ note.title }}</span>
+              <router-link
+                :to="`/note?noteId=${note.id}&notebookId=${curBook.id}`"
+                @click="dropTo(note)"
+              >
+                <span>{{ note.updatedAtFriendly }}</span
+                ><span>{{ note.title }}</span>
+              </router-link>
             </li>
           </ul>
         </div>
@@ -38,8 +43,8 @@
     </div>
     <div id="showDetail" v-show="curNote.id">
       <div class="top">
-        <span>创建日期:1天前</span>
-        <span>更新日期:5分钟前</span>
+        <span>创建日期:{{ curNote.createdAtFriendly }}</span>
+        <span>更新日期:{{ curNote.updatedAtFriendly }}</span>
         <span>{{ status }}</span>
         <i class="iconfont icon-delete"></i>
         <i
@@ -54,8 +59,15 @@
         ></i>
       </div>
       <div class="edit">
-        <div class="edit-title">标题</div>
-        <div class="edit-content">内容{{ content }}</div>
+        <div class="edit-title">
+          <input placeholder="请输入标题" :value="curNote.title" />
+        </div>
+        <div class="edit-content">
+          <textarea
+            placeholder="请输入内容，支持markdown语法哦~"
+            :value="curNote.content"
+          ></textarea>
+        </div>
       </div>
     </div>
     <div id="tips" v-show="!curNote.id">点击左侧笔记进行编辑</div>
@@ -65,7 +77,8 @@
 <script>
 import Auth from "@/apis/auth";
 import Notebooks from "@/apis/notebooks";
-// import Notes from "@/apis/notes";
+
+import Notes from "@/apis/notes";
 export default {
   name: "NoteDetail",
   data() {
@@ -92,13 +105,47 @@ export default {
         this.$router.push({ path: "/login" });
       }
     });
-    Notebooks.getAll().then((res) => {
-      this.notebooks = res.data;
-    });
+    Notebooks.getAll()
+      .then((res) => {
+        this.notebooks = res.data;
+        const bookId = this.$route.query.notebookId;
+        if (bookId) {
+          this.curBook = this.notebooks.find(
+            (notebook) => notebook.id == bookId
+          );
+          return Notes.getAll({ notebookId: bookId });
+        } else {
+          this.curBook = res.data[0];
+          return;
+        }
+      })
+      .then((res) => {
+        const noteId = this.$route.query.noteId;
+        this.notes = res.data;
+        if (noteId) {
+          this.curNote = this.notes.find((note) => note.id == noteId);
+        }
+      });
   },
+  // beforeRouteUpdate(to,from,next){
+  //   const noteId = to.query.noteId
+  //   console.log('fuck')
+  //   this.curNote = this.notes.find(note=>note.id === noteId)
+  //   next()
+  // },
   methods: {
     handleCommand(command) {
-      this.$message("click on item " + command);
+      this.$router.push({ path: `/note?notebookId=${command.id}` });
+      this.curBook = command;
+      Notes.getAll({ notebookId: command.id }).then((res) => {
+        this.notes = res.data;
+        this.curNote = {};
+      });
+      this.$message("已经切换到笔记本 " + command.title);
+    },
+    dropTo(curNote) {
+      this.curBook = curNote;
+      console.log("fuck");
     },
   },
 };
@@ -114,7 +161,7 @@ export default {
 }
 #showNote {
   /* border: 1px solid blue; */
-  width: 380px;
+  width: 400px;
   > header {
     display: flex;
     justify-content: space-between;
@@ -142,13 +189,15 @@ export default {
       > ul {
         list-style: none;
         > li {
-          display: flex;
-          > span {
-            width: 50%;
-
-            padding: 2px 10px;
-            font-size: 12px;
-            word-break: break-all;
+          > a {
+            width: 100%;
+            display: flex;
+            > span {
+              width: 50%;
+              padding: 2px 10px;
+              font-size: 12px;
+              word-break: break-all;
+            }
           }
         }
       }
@@ -158,6 +207,14 @@ export default {
 .el-dropdown-link {
   font-size: 18px;
   color: black;
+}
+.el-dropdown-menu {
+  max-width: 140px;
+  max-height: 80vh;
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 #showDetail {
@@ -182,19 +239,30 @@ export default {
 
 .edit {
   > .edit-title {
-    font-size: 24px;
-    padding-top: 4px;
-    word-break: break-all;
-    margin-left: 20px;
+    > input {
+      font-size: 24px;
+      padding-top: 4px;
+      word-break: break-all;
+      margin-left: 20px;
+      width: 90%;
+      border: none;
+      outline: none;
+    }
   }
   > .edit-content {
-    font-size: 16px;
-    padding-top: 6px;
-    margin-left: 16px;
-    overflow-x: hidden;
-    overflow-y: scroll;
-    &::-webkit-scrollbar {
-      display: none;
+    > textarea {
+      outline: none;
+      border: none;
+      width: 96%;
+      height: 90vh;
+      font-size: 16px;
+      padding-top: 6px;
+      margin-left: 16px;
+      overflow-x: hidden;
+      overflow-y: scroll;
+      &::-webkit-scrollbar {
+        display: none;
+      }
     }
   }
 }
@@ -207,5 +275,8 @@ export default {
   padding-left: 100px;
   color: gray;
   border-left: 1px solid #ddd;
+}
+.router-link-exact-active {
+  border: 1px solid lightblue;
 }
 </style>
