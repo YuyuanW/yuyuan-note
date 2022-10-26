@@ -70,7 +70,7 @@
         </div>
       </div>
     </div>
-    <div id="tips" v-show="!curNote.id">点击左侧笔记进行编辑</div>
+    <div id="tips" v-show="!curNote.id">请先新建笔记</div>
   </div>
 </template>
 
@@ -141,11 +141,11 @@ export default {
         this.notes = res.data;
         this.curNote = {};
       });
-      this.$message("已经切换到笔记本 " + command.title);
+      this.$message(`已经切换到笔记本:《${command.title}》`);
     },
     dropTo(curNote) {
       this.curNote = curNote;
-      console.log("fuck", curNote);
+      this.$message(`笔记已切换到 <${curNote.title}>`);
     },
   },
 };
