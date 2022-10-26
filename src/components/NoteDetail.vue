@@ -19,7 +19,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
-        <button class="btn addNote">添加笔记</button>
+        <button class="btn addNote" @click="addNote">添加笔记</button>
       </header>
       <main>
         <div class="info">
@@ -46,7 +46,7 @@
         <span>创建日期:{{ curNote.createdAtFriendly }}</span>
         <span>更新日期:{{ curNote.updatedAtFriendly }}</span>
         <span>{{ status }}</span>
-        <i class="iconfont icon-delete"></i>
+        <i class="iconfont icon-delete" @click="deleteNote"></i>
         <i
           class="iconfont icon-fullscreen"
           v-if="!isFull"
@@ -70,7 +70,7 @@
         </div>
       </div>
     </div>
-    <div id="tips" v-show="!curNote.id">请先新建笔记</div>
+    <div id="tips" v-show="!curNote.id">请先新建笔记或者点击笔记</div>
   </div>
 </template>
 
@@ -146,6 +146,23 @@ export default {
     dropTo(curNote) {
       this.curNote = curNote;
       this.$message(`笔记已切换到 <${curNote.title}>`);
+    },
+    addNote() {
+      Notes.addNote({ notebookId: this.curBook.id }).then((res) => {
+        this.notes.unshift(res.data);
+        this.curNote = res.data;
+      });
+    },
+    deleteNote() {
+      // console.log(this.curNote);
+      window.prompt(
+        `确认删除${this.curNote.updatedAtFriendly}前更新的笔记,<${this.curNote.title}>吗？`
+      );
+      Notes.deleteNote({ noteId: this.curNote.id }).then((res) => {
+        this.$message(`笔记已放入回收站`);
+        this.notes.splice(this.notebooks.indexOf(this.curBook), 1);
+        this.curNote = {};
+      });
     },
   },
 };
