@@ -34,7 +34,7 @@
                 @click="dropTo(note)"
               >
                 <span>{{ note.updatedAtFriendly }}</span
-                ><span>{{ note.title }}</span>
+                ><span @click="dropTo(note)">{{ note.title }}</span>
               </router-link>
             </li>
           </ul>
@@ -144,8 +144,8 @@ export default {
       this.$message("已经切换到笔记本 " + command.title);
     },
     dropTo(curNote) {
-      this.curBook = curNote;
-      console.log("fuck");
+      this.curNote = curNote;
+      console.log("fuck", curNote);
     },
   },
 };
