@@ -60,12 +60,12 @@
       </div>
       <div class="edit">
         <div class="edit-title">
-          <input placeholder="请输入标题" :value="curNote.title" />
+          <input placeholder="请输入标题" v-model="curNote.title" />
         </div>
         <div class="edit-content">
           <textarea
             placeholder="请输入内容，支持markdown语法哦~"
-            :value="curNote.content"
+            v-model="curNote.content"
           ></textarea>
         </div>
       </div>
@@ -77,8 +77,10 @@
 <script>
 import Auth from "@/apis/auth";
 import Notebooks from "@/apis/notebooks";
+// import Debounce from "@/helpers/debounce";
 
 import Notes from "@/apis/notes";
+import { watchEffect } from "vue";
 export default {
   name: "NoteDetail",
   data() {
@@ -100,6 +102,18 @@ export default {
     };
   },
   created() {
+    watchEffect(() => {
+      // console.log("fuck", this.curNote.title, this.curNote.content);
+      if (this.curNote.id) {
+        Notes.updateNote(
+          { noteId: this.curNote.id },
+          { title: this.curNote.title, content: this.curNote.content }
+        ).then((res) => {
+          this.status = res.msg;
+        });
+      }
+    });
+
     Auth.getInfo().then((res) => {
       if (!res.isLogin) {
         this.$router.push({ path: "/login" });
@@ -133,6 +147,7 @@ export default {
   //   this.curNote = this.notes.find(note=>note.id === noteId)
   //   next()
   // },
+
   methods: {
     handleCommand(command) {
       this.$router.push({ path: `/note?notebookId=${command.id}` });
@@ -163,6 +178,11 @@ export default {
         this.notes.splice(this.notebooks.indexOf(this.curBook), 1);
         this.curNote = {};
       });
+    },
+    updateNote() {},
+    titleChange(e) {
+      console.log("fuck");
+      console.log(e.target.value, "fuck");
     },
   },
 };
