@@ -3,13 +3,13 @@
     <div class="trash-side">
       <header>回收站</header>
       <main>
-        <div>
+        <div class="trash-menu">
           <span>更新时间</span>
           <span>标题</span>
         </div>
         <div class="trash-note">
           <ul>
-            <li v-for="note in notes" :key="note.id">
+            <li v-for="note in notes" :key="note.id" @click="dropTo(note)">
               <router-link :to="`/trash?noteId=${note.id}`">
                 <span>{{ note.updatedAtFriendly }}</span>
                 <span>{{ note.title }}</span>
@@ -21,19 +21,21 @@
     </div>
     <div class="trash-show">
       <header>
-        <span>回收数量：{{ this.notes.length }}</span>
+        <span>回收数量:{{ this.notes.length }}</span>
+        <span>|</span>
         <span>创建日期:{{ this.curNote.createdAtFriendly }}</span>
-        <span>更新日期:{{ this.curNote.updatedAtFriendly }}</span>
+        <span>|</span>
         <span>所属笔记本:{{ this.curNote.notebookId }}</span>
         <button>彻底删除</button>
-        <button>恢复</button>
+        <button @click="restore(this.curNote)">恢复</button>
       </header>
+      {{ curNote }}
       <main>
-        <div class="trash-noteDetail">
+        <div class="trash-noteDetail" v-show="!isEmpty">
           <div class="trash-title">{{ this.curNote.title }}</div>
           <div class="trash-content">{{ this.curNote.content }}</div>
         </div>
-        <div class="trash-tips">当前回收站为空</div>
+        <div class="trash-tips" v-show="isEmpty">当前回收站为空</div>
       </main>
     </div>
   </div>
@@ -47,6 +49,7 @@ export default {
     return {
       notes: [],
       curNote: {},
+      isEmpty: true,
     };
   },
   created() {
@@ -60,10 +63,144 @@ export default {
       this.curNote = this.notes[0];
       if (this.curNote.id) {
         this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
+        this.isEmpty = false;
       }
     });
+  },
+  methods: {
+    dropTo(note) {
+      this.curNote = note;
+    },
+    // restore(note) {
+    //   Trash.revertNote({ noteId: note.id }).then((res) => {
+    //     this.notes.splice(this.notes.indexOf(note), 1);
+    //     this.curNote = this.notes[0];
+    //     if (!this.curNote.id) {
+    //       this.isEmpty = true;
+    //     } else {
+    //       this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
+    //     }
+    //   });
+    // },
   },
 };
 </script>
 
-<style scoped></style>
+<style lang="scss" scoped>
+#trash-detail {
+  /* border: 1px solid red; */
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+}
+.trash-side {
+  /* border: 1px solid blue; */
+  background-color: #eee;
+  width: 280px;
+  border-right: 1px solid #ccc;
+
+  > header {
+    font-size: 18px;
+    font-weight: 400;
+    color: #333;
+    height: 45px;
+    line-height: 45px;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+    background-color: #f7f7f7;
+    display: block;
+  }
+}
+.trash-menu {
+  display: flex;
+  > span {
+    flex: 1;
+    width: 50%;
+    font-size: 12px;
+    padding: 2px 10px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    border: 1px solid #ccc;
+    border-right: none;
+  }
+}
+.trash-note {
+  max-height: 1000px;
+  overflow: scroll;
+  &::-webkit-scrollbar {
+    width: 4px;
+    /*height: 4px;*/
+  }
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.2);
+  }
+  &::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    background: rgba(0, 0, 0, 0.05);
+  }
+}
+.router-link-active {
+  display: flex;
+  padding: 2px 0;
+  font-size: 12px;
+  > span {
+    padding: 2px 10px;
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+  }
+}
+a {
+  text-decoration: none;
+  color: #444;
+}
+.router-link-exact-active {
+  border: 2px solid rgb(129, 192, 243);
+}
+.trash-show {
+  /* border: 1px solid green; */
+  flex: 1;
+  background-color: white;
+  > header {
+    /* border: 1px solid red; */
+    padding: 4px 20px;
+    border-bottom: 1px solid #eee;
+    > span {
+      font-size: 12px;
+      color: #999;
+      margin-right: 4px;
+    }
+    > button {
+      float: right;
+      margin-left: 10px;
+      padding: 2px 4px;
+      font-size: 12px;
+      color: #666;
+      background-color: #fff;
+      -webkit-box-shadow: 0 0 2px 0 #ccc;
+      box-shadow: 0 0 2px 0 #ccc;
+      border: none;
+      cursor: pointer;
+      transform: translateY(-2px);
+      /* display: inline-block; */
+    }
+  }
+}
+.trash-noteDetail {
+  > .trash-title {
+    display: inline-block;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 18px;
+    padding: 10px 20px;
+  }
+  > .trash-content {
+    padding: 20px;
+  }
+}
+</style>

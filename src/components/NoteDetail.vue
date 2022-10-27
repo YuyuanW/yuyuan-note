@@ -134,10 +134,14 @@ export default {
           );
         } else {
           this.curBook = res.data[0];
+          if (this.curBook.id) {
+            this.$router.push({ path: `/note?notebookId=${this.curBook.id}` });
+          }
         }
         return Notes.getAll({ notebookId: this.curBook.id });
       })
       .then((res) => {
+        console.log("fuck", res.data);
         const noteId = this.$route.query.noteId;
         this.notes = res.data;
         if (noteId) {
@@ -174,11 +178,11 @@ export default {
     },
     deleteNote() {
       // console.log(this.curNote);
-      window.prompt(
-        `确认删除${this.curNote.updatedAtFriendly}前更新的笔记,<${this.curNote.title}>吗？`
-      );
       Notes.deleteNote({ noteId: this.curNote.id }).then((res) => {
-        this.$message(`笔记已放入回收站`);
+        this.$message({
+          type: "success",
+          message: res.msg || `笔记已放入回收站`,
+        });
         this.notes.splice(this.notebooks.indexOf(this.curBook), 1);
         this.curNote = {};
       });
