@@ -132,11 +132,10 @@ export default {
           this.curBook = this.notebooks.find(
             (notebook) => notebook.id == bookId
           );
-          return Notes.getAll({ notebookId: bookId });
         } else {
           this.curBook = res.data[0];
-          return;
         }
+        return Notes.getAll({ notebookId: this.curBook.id });
       })
       .then((res) => {
         const noteId = this.$route.query.noteId;
@@ -183,11 +182,6 @@ export default {
         this.notes.splice(this.notebooks.indexOf(this.curBook), 1);
         this.curNote = {};
       });
-    },
-    updateNote() {},
-    titleChange(e) {
-      console.log("fuck");
-      console.log(e.target.value, "fuck");
     },
   },
 };
