@@ -66,7 +66,12 @@
           <textarea
             placeholder="请输入内容，支持markdown语法哦~"
             v-model="curNote.content"
+            v-show="!isFull"
           ></textarea>
+          <div v-show="isFull">
+            <article class="markdown-body" v-html="curNote.content"></article>
+            <!-- <article class="markdown-body">{{curNote.content}}</article> -->
+          </div>
         </div>
       </div>
     </div>
@@ -189,6 +194,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.markdown-body {
+  box-sizing: border-box;
+  min-width: 200px;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 45px;
+}
+@media (max-width: 767px) {
+  .markdown-body {
+    padding: 15px;
+  }
+}
 #note-detail {
   /* border: 1px solid red; */
   width: 100%;
