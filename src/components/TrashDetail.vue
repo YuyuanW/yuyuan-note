@@ -20,16 +20,15 @@
       </main>
     </div>
     <div class="trash-show">
-      <header>
-        <span>回收数量:{{ this.notes.length }}</span>
+      <header v-show="curNote.id">
+        <span>回收数量:{{ notes.length }}</span>
         <span>|</span>
-        <span>创建日期:{{ this.curNote.createdAtFriendly }}</span>
+        <span>创建日期:{{ curNote.createdAtFriendly }}</span>
         <span>|</span>
-        <span>所属笔记本:{{ this.curNote.notebookId }}</span>
-        <button>彻底删除</button>
-        <button @click="restore(this.curNote)">恢复</button>
+        <span>所属笔记本:{{ curNote.notebookId }}</span>
+        <button @click="deleteDeep(curNote)">彻底删除</button>
+        <button @click="restore(curNote)">恢复</button>
       </header>
-      {{ curNote }}
       <main>
         <div class="trash-noteDetail" v-show="!isEmpty">
           <div class="trash-title">{{ this.curNote.title }}</div>
@@ -71,17 +70,44 @@ export default {
     dropTo(note) {
       this.curNote = note;
     },
-    // restore(note) {
-    //   Trash.revertNote({ noteId: note.id }).then((res) => {
-    //     this.notes.splice(this.notes.indexOf(note), 1);
-    //     this.curNote = this.notes[0];
-    //     if (!this.curNote.id) {
-    //       this.isEmpty = true;
-    //     } else {
-    //       this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
-    //     }
-    //   });
-    // },
+    restore(note) {
+      // console.log("fuck", this.curNote);
+      Trash.revertNote({ noteId: note.id })
+        .then((res) => {
+          // console.log("fuck", this.curNote);
+          this.notes = this.notes.splice(this.notes.indexOf(note), 1);
+          // console.log("fuck notes", this.notes);
+          this.curNote = this.notes[0];
+          // console.log("fuck note", this.curNote);
+          this.$emit({ type: "success", message: res.msg || "恢复成功" });
+          if (this.notes.length === 0) {
+            this.isEmpty = true;
+          } else {
+            this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
+          }
+        })
+        .catch((res) => {
+          // console.log("fuck");
+          this.$emit({ type: "error", message: res.msg || "恢复失败" });
+        });
+    },
+    deleteDeep(note) {
+      Trash.deleteNote({ noteId: note.id })
+        .then((res) => {
+          console.log("fuck", res.msg);
+          this.notes.splice(this.notes.indexOf(note), 1);
+          this.curNote = this.notes[0];
+          this.$emit({ type: "success", message: res.msg || "清除成功" });
+          if (this.notes.length === 0) {
+            this.isEmpty = true;
+          } else {
+            this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
+          }
+        })
+        .catch((res) => {
+          this.$emit({ type: "error", message: res.message || "删除失败" });
+        });
+    },
   },
 };
 </script>
@@ -127,7 +153,8 @@ export default {
 }
 .trash-note {
   max-height: 1000px;
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
   &::-webkit-scrollbar {
     width: 4px;
     /*height: 4px;*/
@@ -190,6 +217,12 @@ a {
     }
   }
 }
+
+.trash-tips {
+  padding: 80px 50px;
+  font-size: 48px;
+  color: #666;
+}
 .trash-noteDetail {
   > .trash-title {
     display: inline-block;
@@ -201,6 +234,23 @@ a {
   }
   > .trash-content {
     padding: 20px;
+    overflow-x: hidden;
+    max-height: 1000px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      width: 4px;
+      /*height: 4px;*/
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+      background: rgba(0, 0, 0, 0.2);
+    }
+    &::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+      border-radius: 0;
+      background: rgba(0, 0, 0, 0.05);
+    }
   }
 }
 </style>

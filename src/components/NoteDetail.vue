@@ -113,9 +113,14 @@ export default {
         Notes.updateNote(
           { noteId: this.curNote.id },
           { title: this.curNote.title, content: this.curNote.content }
-        ).then((res) => {
-          this.status = res.msg;
-        });
+        )
+          .then((res) => {
+            this.status = res.msg;
+          })
+          .catch((res) => {
+            this.$message({ type: "error", message: res.msg || "修改失败" });
+          });
+        // console.log("fuck", this.curNote.title, this.curNote.content);
       }
     });
 
@@ -141,7 +146,7 @@ export default {
         return Notes.getAll({ notebookId: this.curBook.id });
       })
       .then((res) => {
-        console.log("fuck", res.data);
+        // console.log("fuck", res.data);
         const noteId = this.$route.query.noteId;
         this.notes = res.data;
         if (noteId) {
@@ -174,18 +179,29 @@ export default {
       Notes.addNote({ notebookId: this.curBook.id }).then((res) => {
         this.notes.unshift(res.data);
         this.curNote = res.data;
+        this.$router.push({
+          path: `/note?noteId=${this.curNote.id}&notebookId=${this.curBook.id}`,
+        });
       });
     },
     deleteNote() {
       // console.log(this.curNote);
-      Notes.deleteNote({ noteId: this.curNote.id }).then((res) => {
-        this.$message({
-          type: "success",
-          message: res.msg || `笔记已放入回收站`,
+      Notes.deleteNote({ noteId: this.curNote.id })
+        .then((res) => {
+          this.notes.splice(this.notes.indexOf(this.curNote), 1);
+          this.curNote = {};
+          this.$router.push({ path: `/note?notebookId=${this.curBook.id}` });
+          this.$message({
+            type: "success",
+            message: res.msg || `笔记已放入回收站`,
+          });
+        })
+        .catch((res) => {
+          this.$message({
+            type: "error",
+            message: res.msg || `放入回收站失败`,
+          });
         });
-        this.notes.splice(this.notebooks.indexOf(this.curBook), 1);
-        this.curNote = {};
-      });
     },
   },
 };
