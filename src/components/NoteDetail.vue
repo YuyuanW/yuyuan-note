@@ -69,7 +69,7 @@
             v-show="!isFull"
           ></textarea>
           <div v-show="isFull">
-            <article class="markdown-body" v-html="curNote.content"></article>
+            <article class="markdown-body" v-html="previewContent"></article>
             <!-- <article class="markdown-body">{{curNote.content}}</article> -->
           </div>
         </div>
@@ -83,22 +83,22 @@
 import Auth from "@/apis/auth";
 import Notebooks from "@/apis/notebooks";
 // import Debounce from "@/helpers/debounce";
+import MarkdownIt from "markdown-it";
+let md = new MarkdownIt();
 
 import Notes from "@/apis/notes";
 import { watchEffect } from "vue";
 export default {
   name: "NoteDetail",
+  computed: {
+    previewContent() {
+      return md.render(this.curNote.content || "");
+    },
+  },
   data() {
     return {
       notebooks: [],
-      notes: [
-        {
-          id: 1,
-          updatedAtFriendly: "刚刚",
-          title: "a",
-        },
-        { id: 2, updatedAtFriendly: "七分钟前", title: "b" },
-      ],
+      notes: [],
       curBook: {},
       curNote: {},
       status: "未保存",
@@ -138,9 +138,11 @@ export default {
             (notebook) => notebook.id == bookId
           );
         } else {
-          this.curBook = res.data[0];
-          if (this.curBook.id) {
-            this.$router.push({ path: `/note?notebookId=${this.curBook.id}` });
+          if (res.data && res.data.length) {
+            this.curBook = res.data[0];
+            this.$router.push({ path: `/note?notebookId=${res.data[0].id}` });
+          } else {
+            return;
           }
         }
         return Notes.getAll({ notebookId: this.curBook.id });
@@ -148,9 +150,11 @@ export default {
       .then((res) => {
         // console.log("fuck", res.data);
         const noteId = this.$route.query.noteId;
-        this.notes = res.data;
-        if (noteId) {
-          this.curNote = this.notes.find((note) => note.id == noteId);
+        if (res && res.data && res.data.length) {
+          this.notes = res.data;
+          if (noteId) {
+            this.curNote = this.notes.find((note) => note.id == noteId);
+          }
         }
       });
   },
@@ -176,13 +180,17 @@ export default {
       this.$message(`笔记已切换到 <${curNote.title}>`);
     },
     addNote() {
-      Notes.addNote({ notebookId: this.curBook.id }).then((res) => {
-        this.notes.unshift(res.data);
-        this.curNote = res.data;
-        this.$router.push({
-          path: `/note?noteId=${this.curNote.id}&notebookId=${this.curBook.id}`,
+      Notes.addNote({ notebookId: this.curBook.id })
+        .then((res) => {
+          this.notes.unshift(res.data);
+          this.curNote = res.data;
+          this.$router.push({
+            path: `/note?noteId=${this.curNote.id}&notebookId=${this.curBook.id}`,
+          });
+        })
+        .catch((res) => {
+          this.$message({ type: "error", message: "当前笔记本无效" });
         });
-      });
     },
     deleteNote() {
       // console.log(this.curNote);
@@ -226,6 +234,7 @@ export default {
   display: flex;
   flex: 1;
   flex-direction: row;
+  overflow: hidden;
 }
 #showNote {
   /* border: 1px solid blue; */

@@ -7,10 +7,19 @@
 
 <script>
 import sidebar from "@/components/Sidebar.vue";
+
+import Auth from "./apis/auth";
 export default {
   name: "app",
   components: {
     sidebar,
+  },
+  created() {
+    Auth.getInfo().then((res) => {
+      if (!res.isLogin) {
+        this.$message({ type: "error", message: "请先登录" });
+      }
+    });
   },
 };
 </script>

@@ -32,7 +32,10 @@
       <main>
         <div class="trash-noteDetail" v-show="!isEmpty">
           <div class="trash-title">{{ this.curNote.title }}</div>
-          <div class="trash-content">{{ this.curNote.content }}</div>
+          <div
+            class="trash-content markdown-body"
+            v-html="previewContent"
+          ></div>
         </div>
         <div class="trash-tips" v-show="isEmpty">当前回收站为空</div>
       </main>
@@ -43,6 +46,8 @@
 <script>
 import Auth from "@/apis/auth";
 import Trash from "@/apis/trash";
+import MarkdownIt from "markdown-it";
+let md = new MarkdownIt();
 export default {
   data() {
     return {
@@ -50,6 +55,11 @@ export default {
       curNote: {},
       isEmpty: true,
     };
+  },
+  computed: {
+    previewContent() {
+      return md.render(this.curNote.content || "");
+    },
   },
   created() {
     Auth.getInfo().then((res) => {
