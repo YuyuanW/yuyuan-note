@@ -39,6 +39,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #eee;
+  overflow: hidden;
 }
 
 a {
@@ -67,6 +68,7 @@ body,
   height: 100%;
 }
 #app {
+  border: 1px solid red;
   display: flex;
   align-items: stretch;
 }
