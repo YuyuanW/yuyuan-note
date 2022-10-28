@@ -59,6 +59,10 @@ export default {
     });
     Trash.getAll().then((res) => {
       this.notes = res.data;
+      if (!this.notes || !this.notes.length) {
+        this.isEmpty = true;
+        return;
+      }
       this.curNote = this.notes[0];
       if (this.curNote.id) {
         this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
@@ -71,41 +75,40 @@ export default {
       this.curNote = note;
     },
     restore(note) {
-      // console.log("fuck", this.curNote);
       Trash.revertNote({ noteId: note.id })
         .then((res) => {
-          // console.log("fuck", this.curNote);
-          this.notes = this.notes.splice(this.notes.indexOf(note), 1);
-          // console.log("fuck notes", this.notes);
-          this.curNote = this.notes[0];
-          // console.log("fuck note", this.curNote);
-          this.$emit({ type: "success", message: res.msg || "恢复成功" });
-          if (this.notes.length === 0) {
+          this.notes.splice(this.notes.indexOf(note), 1);
+          if (!this.notes || !this.notes.length) {
             this.isEmpty = true;
+            this.$router.push({ path: `/trash` });
+            return;
           } else {
-            this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
+            this.curNote = this.notes[0];
+            this.$router.push({ path: `/trash?noteId=${this.notes[0].id}` });
+            this.$message({ type: "success", message: res.msg || "恢复成功" });
           }
         })
         .catch((res) => {
-          // console.log("fuck");
-          this.$emit({ type: "error", message: res.msg || "恢复失败" });
+          this.$message({ type: "error", message: res.msg || "恢复失败" });
         });
     },
     deleteDeep(note) {
       Trash.deleteNote({ noteId: note.id })
         .then((res) => {
-          console.log("fuck", res.msg);
           this.notes.splice(this.notes.indexOf(note), 1);
-          this.curNote = this.notes[0];
-          this.$emit({ type: "success", message: res.msg || "清除成功" });
-          if (this.notes.length === 0) {
+          if (!this.note || !this.notes.length) {
             this.isEmpty = true;
+            this.$router.push({ path: `/trash` });
+            return;
           } else {
-            this.$router.push({ path: `/trash?noteId=${this.curNote.id}` });
+            this.curNote = this.notes[0];
+            this.$router.push({ path: `/trash?noteId=${this.notes[0].id}` });
+            this.$message({ type: "success", message: res.msg || "清除成功" });
           }
         })
         .catch((res) => {
-          this.$emit({ type: "error", message: res.message || "删除失败" });
+          console.log("fuck delete", res);
+          this.$message({ type: "error", message: res.message || "删除失败" });
         });
     },
   },
