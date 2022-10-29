@@ -15,8 +15,9 @@ module.exports = defineConfig({
         maskIcon: './favicon.ico',
         msTileImage: './favicon.ico'
     },
-    base: './',
-  assetsDir: 'assets',
+    baseUrl: './',
+  // assetsDir: 'assets',
+  publicPath:'./'
 }
 })
 
