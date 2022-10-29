@@ -14,6 +14,10 @@ module.exports = defineConfig({
         appleTouchIcon: './favicon.ico',
         maskIcon: './favicon.ico',
         msTileImage: './favicon.ico'
-    }
+    },
+    base: './',
+  assetsDir: 'assets',
 }
 })
+
+

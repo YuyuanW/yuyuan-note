@@ -68,7 +68,7 @@ body,
   height: 100%;
 }
 #app {
-  border: 1px solid red;
+  /* border: 1px solid red; */
   display: flex;
   align-items: stretch;
 }
