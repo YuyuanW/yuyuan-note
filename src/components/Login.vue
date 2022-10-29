@@ -188,9 +188,9 @@ export default {
 
   .main {
     flex: 1;
-    background: #36bc64
-      url(//cloud.hunger-valley.com/17-12-13/38476998.jpg-middle) center center
-      no-repeat;
+    background: #e1d3a6
+      url(//ts1.cn.mm.bing.net/th/id/R-C.14b90cd665accbfc47dcba61c6e9b8ed?rik=QGa4Cip1qZGsbQ&riu=http%3a%2f%2fbpic.588ku.com%2fback_pic%2f05%2f22%2f00%2f6759e1e8de1c878.jpg!%2ffh%2f300%2fquality%2f90%2funsharp%2ftrue%2fcompress%2ftrue&ehk=p5zEvbEZCNVMuqfnJCQ8CeeU2DnBUujr8%2faRSnwXiak%3d&risl=&pid=ImgRaw&r=0)
+      center center no-repeat;
     background-size: contain;
   }
   .form {
@@ -210,7 +210,7 @@ export default {
       }
     }
     .button {
-      background-color: #2bb964;
+      background-color: rgb(215, 173, 102);
       height: 36px;
       line-height: 36px;
       text-align: center;

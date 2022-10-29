@@ -1,5 +1,8 @@
 const { defineConfig } = require('@vue/cli-service')
 module.exports = defineConfig({
+  // baseUrl: './',
+  // assetsDir: 'assets',
+  publicPath:'./',
   transpileDependencies: true,
   lintOnSave: false,
   // 解决后端的登录状态问题
@@ -15,9 +18,7 @@ module.exports = defineConfig({
         maskIcon: './favicon.ico',
         msTileImage: './favicon.ico'
     },
-    baseUrl: './',
-  // assetsDir: 'assets',
-  publicPath:'./'
+    
 }
 })
 
